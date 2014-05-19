@@ -44,6 +44,7 @@ module Shell
       @node_built = false
       formatter = Chef::Formatters.new(Chef::Config.formatter, STDOUT, STDERR)
       @events = Chef::EventDispatch::Dispatcher.new(formatter)
+      @shell_config = Chef::Config[:shell_config]
     end
 
     def node_built?
@@ -151,7 +152,7 @@ module Shell
 
     def rebuild_node
       Chef::Config[:solo] = true
-      @client = Chef::Client.new
+      @client = Chef::Client.new(nil, @shell_config)
       @client.run_ohai
       @client.load_node
       @client.build_node
@@ -183,7 +184,7 @@ module Shell
     def rebuild_node
       # Tell the client we're chef solo so it won't try to contact the server
       Chef::Config[:solo] = true
-      @client = Chef::Client.new
+      @client = Chef::Client.new(nil, @shell_config)
       @client.run_ohai
       @client.load_node
       @client.build_node
@@ -214,7 +215,7 @@ module Shell
     def rebuild_node
       # Make sure the client knows this is not chef solo
       Chef::Config[:solo] = false
-      @client = Chef::Client.new
+      @client = Chef::Client.new(nil, @shell_config)
       @client.run_ohai
       @client.register
       @client.load_node
